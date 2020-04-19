@@ -19,6 +19,8 @@ WARNING:
 -	[`2.0.0-rc.3`, `2.0.0-rc.3-alpine`, `alpine`, `latest`](https://github.com/caddyserver/caddy-docker/blob/94a0098157df267d23e54782d962b9f41b0d15c5/alpine/Dockerfile)
 -	[`2.0.0-rc.3-builder`, `builder`](https://github.com/caddyserver/caddy-docker/blob/82359bcbcd3d43b8703605afc60370b6c5f87d1f/builder/Dockerfile)
 
+[![arm32v6/caddy build status badge](https://img.shields.io/jenkins/s/https/doi-janky.infosiftr.net/job/multiarch/job/arm32v6/job/caddy.svg?label=arm32v6/caddy%20%20build%20job)](https://doi-janky.infosiftr.net/job/multiarch/job/arm32v6/job/caddy/)
+
 # Quick reference
 
 -	**Where to get help**:  
@@ -75,7 +77,7 @@ $ echo "hello world" > index.html
 $ docker run -d -p 80:80 \
     -v $PWD/index.html:/usr/share/caddy/index.html \
     -v caddy_data:/data \
-    caddy
+    arm32v6/caddy
 ...
 $ curl http://localhost/
 hello world
@@ -87,7 +89,7 @@ To override the default [`Caddyfile`](https://github.com/caddyserver/dist/blob/m
 $ docker run -d -p 80:80 \
     -v $PWD/Caddyfile:/etc/caddy/Caddyfile \
     -v caddy_data:/data \
-    caddy
+    arm32v6/caddy
 ```
 
 ### Automatic TLS with the Caddy image
@@ -99,7 +101,7 @@ $ docker run -d -p 80:80 -p 443:443 \
     -v /site:/usr/share/caddy \
     -v caddy_data:/data \
     -v caddy_config:/config \
-    caddy caddy file-server --domain example.com
+    arm32v6/caddy caddy file-server --domain example.com
 ```
 
 The key here is that Caddy is able to listen to ports `80` and `443`, both required for the ACME HTTP challenge.
@@ -108,11 +110,11 @@ See [Caddy's docs](https://caddyserver.com/docs/automatic-https) for more inform
 
 ### Building your own Caddy-based image
 
-Most users deploying production sites will not want to rely on mounting files into a container, but will instead base their own images on `caddy`:
+Most users deploying production sites will not want to rely on mounting files into a container, but will instead base their own images on `arm32v6/caddy`:
 
 ```Dockerfile
 # note: never use the :latest tag in a production site
-FROM caddy:2.0.0
+FROM arm32v6/caddy:2.0.0
 
 COPY Caddyfile /etc/caddy/Caddyfile
 COPY site /site
@@ -125,18 +127,18 @@ Caddy is extendable through the use of "modules". See https://caddyserver.com/do
 You can use the `:builder` image as a short-cut to building a new Caddy binary:
 
 ```Dockerfile
-FROM caddy:2.0.0-builder AS builder
+FROM arm32v6/caddy:2.0.0-builder AS builder
 
 RUN caddy-builder \
     github.com/caddyserver/nginx-adapter \
     github.com/hairyhenderson/caddy-teapot-module@v0.0.1
 
-FROM caddy:2.0.0
+FROM arm32v6/caddy:2.0.0
 
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
 ```
 
-Note the second `FROM` instruction - this produces a much smaller image by simply overlaying the newly-built binary on top of the the regular `caddy` image.
+Note the second `FROM` instruction - this produces a much smaller image by simply overlaying the newly-built binary on top of the the regular `arm32v6/caddy` image.
 
 The `caddy-builder` script is used to [build a new Caddy entrypoint](https://github.com/caddyserver/caddy/blob/71e81d262bc34545f73f1380bc5d078d83d1570f/cmd/caddy/main.go#L15..L25), with the provided modules. You can specify just a module name, or a name with a version (separated by `@`).
 
@@ -157,13 +159,13 @@ $ docker exec $caddy_container_id caddy reload --config /etc/caddy/Caddyfile --a
 
 # Image Variants
 
-The `caddy` images come in many flavors, each designed for a specific use case.
+The `arm32v6/caddy` images come in many flavors, each designed for a specific use case.
 
-## `caddy:<version>`
+## `arm32v6/caddy:<version>`
 
 This is the defacto image. If you are unsure about what your needs are, you probably want to use this one. It is designed to be used both as a throw away container (mount your source code and start the container to start your app), as well as the base to build other images off of.
 
-## `caddy:<version>-alpine`
+## `arm32v6/caddy:<version>-alpine`
 
 This image is based on the popular [Alpine Linux project](http://alpinelinux.org), available in [the `alpine` official image](https://hub.docker.com/_/alpine). Alpine Linux is much smaller than most distribution base images (~5MB), and thus leads to much slimmer images in general.
 
